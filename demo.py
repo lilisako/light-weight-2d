@@ -9,6 +9,9 @@ from modules.keypoints import extract_keypoints, group_keypoints
 from modules.load_state import load_state
 from modules.pose import Pose, track_poses
 from val import normalize, pad_width
+from google.colab.patches import cv2_imshow
+
+
 
 
 class ImageReader(object):
@@ -125,7 +128,8 @@ def run_demo(net, image_provider, height_size, cpu, track, smooth):
             if track:
                 cv2.putText(img, 'id: {}'.format(pose.id), (pose.bbox[0], pose.bbox[1] - 16),
                             cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255))
-        cv2.imshow('Lightweight Human Pose Estimation Python Demo', img)
+        cv2_imshow(img)
+        out.write(img)
         key = cv2.waitKey(delay)
         if key == 27:  # esc
             return
@@ -156,6 +160,9 @@ if __name__ == '__main__':
     net = PoseEstimationWithMobileNet()
     checkpoint = torch.load(args.checkpoint_path, map_location='cpu')
     load_state(net, checkpoint)
+
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    out = cv2.VideoWriter('output.mp4',fourcc, 20, (1280,720))
 
     frame_provider = ImageReader(args.images)
     if args.video != '':
